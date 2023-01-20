@@ -8,7 +8,17 @@
 
     <ItemGroup>
         <PackageReference Include="MediatR" Version="11.1.0" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.13" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.11" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.11" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NewsSystem.Application\NewsSystem.Application.csproj" />
+      <ProjectReference Include="..\NewsSystem.Domain\NewsSystem.Domain.csproj" />
+      <ProjectReference Include="..\NewsSystem.Infrastructure\NewsSystem.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
