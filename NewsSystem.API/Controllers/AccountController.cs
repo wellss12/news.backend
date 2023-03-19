@@ -22,10 +22,11 @@ public class AccountController : ControllerBase
     [Route("test")]
     public string Test()
     {
+        var jwt_id = User.Claims.FirstOrDefault(p => p.Type == "jti").Value;
         var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var name = User.FindFirst(ClaimTypes.Name)?.Value;
         var roles = User.FindAll(ClaimTypes.Role);
-        return $"{id},{name},{string.Join(",", roles)}";
+        return $"{id},{name},{string.Join(",", roles)},  {jwt_id}";
     }
 
     [AllowAnonymous]
@@ -37,6 +38,14 @@ public class AccountController : ControllerBase
         return result.Succeeded
             ? Ok(token)
             : BadRequest("Login Fail");
+    }
+    
+    [HttpPost]
+    [Route("logout")]
+    public async Task<ActionResult> Logout(Guid userId)
+    {
+        await _mediator.Send(new LogoutCommand(userId));
+        return Ok();
     }
 
     [HttpPost]

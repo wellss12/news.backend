@@ -1,6 +1,9 @@
-﻿using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using NewsSystem.Application;
 using NewsSystem.Infrastructure.Config;
 
 namespace NewsSystem.API.Extensions;
@@ -21,6 +24,19 @@ public static class AuthenticationExtensions
                     ValidIssuer = jwtOptions.Issuer,
                     ValidAudience = jwtOptions.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
+                };
+                options.Events = new JwtBearerEvents()
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var jti = context.Principal.FindFirstValue(JwtRegisteredClaimNames.Jti);
+                        var cacheService = context.HttpContext.RequestServices.GetRequiredService<ICacheService>();
+                        //TODO: clear black_list regular
+                        if ((await cacheService.SMembers("jwt_black_list")).Contains(jti))
+                        {
+                            context.Fail("token fail");
+                        }
+                    }
                 };
             });
         services.AddAuthorization();

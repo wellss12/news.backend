@@ -6,6 +6,7 @@ using NewsSystem.Application;
 using NewsSystem.Application.Command;
 using NewsSystem.Domain;
 using NewsSystem.Infrastructure.Config;
+using StackExchange.Redis;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,10 +26,15 @@ builder.Services.AddTransient<IIdentityRepository, IdentityRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddDbContext<IdDbContext>(opt =>
     {
-        opt.UseSqlServer(builder.Configuration.GetSection("DB:SqlServer:Connection").Value);
+        opt.UseSqlServer(builder.Configuration.GetConnectionString("News"));
         opt.LogTo(Console.WriteLine, LogLevel.Information);
     }
 );
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<ICacheService, RedisCacheService>();
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
 
 builder.ConfigureIdentity();
 
